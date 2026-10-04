@@ -1,26 +1,30 @@
-import jwt
-
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
 
-from config import JWT_SECRET_KEY, JWT_ALGORITHM
-from database import get_session
+import jwt
+from jwt import InvalidTokenError
 
-from repositories.user_repository import get_user_by_id
-security = HTTPBearer()
+from config import (
+    JWT_SECRET_KEY,
+    JWT_ALGORITHM
+)
+
+from database import (
+    User,
+    get_session
+)
+
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/auth/login"
+)
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(
-        security
-    ),
-    session: Session = Depends(
-        get_session
-    )
+    token: str = Depends(oauth2_scheme),
+    session: Session = Depends(get_session)
 ):
-    token = credentials.credentials
-
     try:
         payload = jwt.decode(
             token,
@@ -28,28 +32,29 @@ def get_current_user(
             algorithms=[JWT_ALGORITHM]
         )
 
-        user_id = int(payload["sub"])
+        user_id = payload.get("sub")
 
-    except (
-        jwt.ExpiredSignatureError,
-        jwt.InvalidTokenError,
-        KeyError,
-        ValueError
-    ):
+        if user_id is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+
+        user = session.get(
+            User,
+            int(user_id)
+        )
+
+        if user is None:
+            raise HTTPException(
+                status_code=401,
+                detail="User not found"
+            )
+
+        return user
+
+    except (InvalidTokenError, ValueError):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Invalid or expired token"
         )
-
-    user = get_user_by_id(
-        session,
-        user_id
-    )
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
-
-    return user

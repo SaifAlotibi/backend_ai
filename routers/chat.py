@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
 from database import User, get_session
@@ -39,12 +39,6 @@ async def chat(
         user_id=current_user.id,
         user_message=request.message
     )
-
-    if answer is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Conversation not found"
-        )
 
     return {
         "answer": answer

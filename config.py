@@ -4,6 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+CORS_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:3000"
+)
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 OLLAMA_URL = os.getenv("OLLAMA_URL")

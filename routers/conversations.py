@@ -27,12 +27,8 @@ router = APIRouter(
 )
 def create_conversation(
     request: ConversationCreate,
-    current_user: User = Depends(
-        get_current_user
-    ),
-    session: Session = Depends(
-        get_session
-    )
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
 ):
 
     conversation = Conversation(
@@ -48,16 +44,38 @@ def create_conversation(
 
 
 @router.get(
+    "/{conversation_id}",
+    response_model=ConversationResponse
+)
+def get_conversation(
+    conversation_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+
+    conversation = session.exec(
+        select(Conversation).where(
+            Conversation.id == conversation_id,
+            Conversation.user_id == current_user.id
+        )
+    ).first()
+
+    if conversation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Conversation not found"
+        )
+
+    return conversation
+
+
+@router.get(
     "",
     response_model=list[ConversationResponse]
 )
 def list_conversations(
-    current_user: User = Depends(
-        get_current_user
-    ),
-    session: Session = Depends(
-        get_session
-    )
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
 ):
 
     statement = select(

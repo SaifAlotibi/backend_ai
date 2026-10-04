@@ -1,5 +1,7 @@
 import httpx
 
+from fastapi import HTTPException
+
 from config import OLLAMA_URL, MODEL_NAME
 
 
@@ -18,14 +20,26 @@ async def chat_with_ollama(
     if tools:
         data["tools"] = tools
 
-    async with httpx.AsyncClient() as client:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                json=data,
+                timeout=120
+            )
 
-        response = await client.post(
-            url,
-            json=data,
-            timeout=120
+            response.raise_for_status()
+
+            return response.json()
+
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503,
+            detail="AI service unavailable"
         )
 
-        response.raise_for_status()
-
-        return response.json()
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=503,
+            detail="AI service timed out"
+        )

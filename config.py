@@ -1,26 +1,27 @@
 import os
 
+from dotenv import load_dotenv
 
-OLLAMA_URL = os.getenv(
-    "OLLAMA_URL",
-    "http://localhost:11434"
-)
+load_dotenv()
 
-MODEL_NAME = os.getenv(
-    "MODEL_NAME",
-    "qwen3:1.7b"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///./data/ai_agent.db"
-)
+OLLAMA_URL = os.getenv("OLLAMA_URL")
+MODEL_NAME = os.getenv("MODEL_NAME")
 
 JWT_SECRET_KEY = os.getenv(
     "JWT_SECRET_KEY",
     "dev-secret-change-this"
 )
 
-JWT_ALGORITHM = "HS256"
+JWT_ALGORITHM = os.getenv(
+    "JWT_ALGORITHM",
+    "HS256"
+)
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv(
+        "ACCESS_TOKEN_EXPIRE_MINUTES",
+        "30"
+    )
+)

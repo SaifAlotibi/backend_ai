@@ -1,5 +1,5 @@
 from sqlmodel import Session
-
+from fastapi import HTTPException
 from agent import run_agent
 
 from repositories.conversation_repository import (
@@ -26,7 +26,10 @@ async def process_chat(
     )
 
     if conversation is None:
-        return None
+        raise HTTPException(
+            status_code=404,
+            detail="Conversation not found"
+            )
 
     # 2. Get previous messages
     db_messages = get_messages(

@@ -1,43 +1,41 @@
 services:
-
   backend:
     build: .
-
     ports:
       - "8000:8000"
-
     environment:
-      OLLAMA_URL: http://ollama:11434
-      MODEL_NAME: qwen3:1.7b
-      DATABASE_URL: postgresql+psycopg://ai_user:ai_password@postgres:5432/ai_database
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-secret-change-this}
-
+      OLLAMA_URL: ${OLLAMA_URL}
+      MODEL_NAME: ${MODEL_NAME}
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
     volumes:
       - .:/app
-
     depends_on:
-      - ollama
-      - postgres
-
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
 
   ollama:
     image: ollama/ollama
-
     volumes:
       - ollama_data:/root/.ollama
 
-
   postgres:
     image: postgres:17
-
     environment:
       POSTGRES_USER: ai_user
       POSTGRES_PASSWORD: ai_password
       POSTGRES_DB: ai_database
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_user -d ai_database"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   ollama_data:

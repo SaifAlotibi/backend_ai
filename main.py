@@ -4,6 +4,8 @@ from routers import auth
 from routers import conversations
 from routers import chat
 
+from exceptions import global_exception_handler
+
 
 app = FastAPI(
     title="AI Agent Backend",
@@ -11,14 +13,12 @@ app = FastAPI(
 )
 
 
-app.include_router(
-    auth.router
+app.add_exception_handler(
+    Exception,
+    global_exception_handler
 )
 
-app.include_router(
-    conversations.router
-)
 
-app.include_router(
-    chat.router
-)
+app.include_router(auth.router)
+app.include_router(conversations.router)
+app.include_router(chat.router)

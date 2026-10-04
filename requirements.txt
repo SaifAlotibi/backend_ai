@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sqlmodel
+pydantic
+pyjwt
+pwdlib[argon2]
+psycopg[binary]
+alembic
+httpx
+pytest

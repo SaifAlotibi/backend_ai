@@ -1,0 +1,44 @@
+services:
+
+  backend:
+    build: .
+
+    ports:
+      - "8000:8000"
+
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      MODEL_NAME: qwen3:1.7b
+      DATABASE_URL: postgresql+psycopg://ai_user:ai_password@postgres:5432/ai_database
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-secret-change-this}
+
+    volumes:
+      - .:/app
+
+    depends_on:
+      - ollama
+      - postgres
+
+
+  ollama:
+    image: ollama/ollama
+
+    volumes:
+      - ollama_data:/root/.ollama
+
+
+  postgres:
+    image: postgres:17
+
+    environment:
+      POSTGRES_USER: ai_user
+      POSTGRES_PASSWORD: ai_password
+      POSTGRES_DB: ai_database
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+volumes:
+  ollama_data:
+  postgres_data:

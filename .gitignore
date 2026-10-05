@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 venv/
 "@ | Out-File -Encoding utf8 .gitignore
+rag_store/

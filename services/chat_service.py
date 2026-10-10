@@ -173,7 +173,9 @@ async def process_chat(
     get_request_id(),
     user_id,
     conversation_id,
-)
+    )
+
+    return answer
 
 # ==========================================
 # 3. Streaming Chat

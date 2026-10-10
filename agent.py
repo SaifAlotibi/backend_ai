@@ -484,17 +484,8 @@ async def stream_agent(messages):
                         tool_calls.extend(
                             current_tool_calls
                         )
-
-                    # ==========================================
-                    # Stream Finished
-                    # ==========================================
-
-                    if data.get("done"):
-
-                        break
-
+                        
             except Exception as exc:
-
                 agent_span.record_exception(exc)
 
                 agent_span.set_status(

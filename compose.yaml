@@ -1,4 +1,5 @@
 services:
+
   backend:
     build: .
     ports:
@@ -6,6 +7,7 @@ services:
     environment:
       OLLAMA_URL: ${OLLAMA_URL}
       MODEL_NAME: ${MODEL_NAME}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL}
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_ALGORITHM: ${JWT_ALGORITHM}
@@ -17,9 +19,13 @@ services:
         condition: service_healthy
       ollama:
         condition: service_started
+      jaeger:
+        condition: service_started
 
   ollama:
     image: ollama/ollama
+    ports:
+      - "11435:11434"
     volumes:
       - ollama_data:/root/.ollama
 
@@ -36,6 +42,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.21.0
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+
 
 volumes:
   ollama_data:

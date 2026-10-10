@@ -57,12 +57,16 @@ class ConversationResponse(BaseModel):
 # =========================
 
 class ChatRequest(BaseModel):
+
     conversation_id: int
 
     message: str = Field(
-        min_length=1
+        min_length=1,
+        max_length=4000
     )
-
-
 class ChatResponse(BaseModel):
     answer: str
+
+class ConversationSummary(BaseModel):
+
+    summary: str

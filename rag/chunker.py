@@ -12,22 +12,77 @@ def create_chunks(
         page_number = page["page"]
         source = page["source"]
 
-        start = 0
+        paragraphs = [
+            paragraph.strip()
+            for paragraph in text.split("\n")
+            if paragraph.strip()
+        ]
 
-        while start < len(text):
+        current_chunk = ""
 
-            end = start + chunk_size
+        for paragraph in paragraphs:
 
-            chunk = text[start:end]
+            # -----------------------------------------
+            # Add paragraph if it fits
+            # -----------------------------------------
 
-            if chunk.strip():
+            if (
+                len(current_chunk)
+                + len(paragraph)
+                + 1
+                <= chunk_size
+            ):
+
+                current_chunk += (
+                    paragraph + " "
+                )
+
+                continue
+
+            # -----------------------------------------
+            # Save current chunk
+            # -----------------------------------------
+
+            if current_chunk.strip():
 
                 chunks.append({
-                    "text": chunk,
+                    "text": current_chunk.strip(),
                     "page": page_number,
                     "source": source
                 })
 
-            start += chunk_size - overlap
+            # -----------------------------------------
+            # Start new chunk
+            # -----------------------------------------
+
+            if overlap > 0:
+
+                overlap_text = (
+                    current_chunk[-overlap:]
+                )
+
+                current_chunk = (
+                    overlap_text
+                    + paragraph
+                    + " "
+                )
+
+            else:
+
+                current_chunk = (
+                    paragraph + " "
+                )
+
+        # -----------------------------------------
+        # Save final chunk
+        # -----------------------------------------
+
+        if current_chunk.strip():
+
+            chunks.append({
+                "text": current_chunk.strip(),
+                "page": page_number,
+                "source": source
+            })
 
     return chunks

@@ -34,14 +34,10 @@ class User(SQLModel, table=True):
 
 class Conversation(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-
     title: str
-
-    user_id: int = Field(
-        foreign_key="user.id",
-        index=True
-    )
-
+    user_id: int = Field(foreign_key="user.id", index=True)
+    summary: str | None = None
+    summary_message_count: int = 0
 
 # =========================
 # Message

@@ -1,12 +1,27 @@
 from rag.pipeline import RAGPipeline
 
 
-rag = RAGPipeline(
-    "documents"
-)
+_rag = None
 
 
-def search_knowledge(query: str):
+def get_rag() -> RAGPipeline:
+
+    global _rag
+
+    if _rag is None:
+
+        _rag = RAGPipeline(
+            "documents"
+        )
+
+    return _rag
+
+
+def search_knowledge(
+    query: str
+):
+
+    rag = get_rag()
 
     results = rag.search(
         query,
@@ -15,7 +30,9 @@ def search_knowledge(query: str):
     )
 
     if not results:
-        return "No relevant information was found."
+        return (
+            "No relevant information was found."
+        )
 
     formatted_results = []
 
@@ -29,8 +46,10 @@ def search_knowledge(query: str):
             f"Document: {result['source']}\n"
             f"Page: {result['page']}\n"
             f"Similarity: {result['score']:.4f}\n"
-            f"Content:\n{result['text']}"
-        )
+            f"Retrieved document content "
+            f"(untrusted data):\n"
+            f"{result['text']}"
+            )
 
     return "\n\n".join(
         formatted_results
